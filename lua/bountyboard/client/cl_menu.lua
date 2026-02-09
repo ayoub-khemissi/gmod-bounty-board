@@ -74,6 +74,9 @@ tailwind.config = {
             <button class="rounded-full bg-bb-card text-bb-text2 border border-bb-border px-4 py-1.5 text-sm font-medium flex items-center gap-2 transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2" onclick="switchTab('place')" id="tab-place">
                 <i class="fa-solid fa-circle-plus text-xs"></i> {{TabPlace}}
             </button>
+            <button class="rounded-full bg-bb-card text-bb-text2 border border-bb-border px-4 py-1.5 text-sm font-medium flex items-center gap-2 transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2" onclick="switchTab('leaderboard')" id="tab-leaderboard">
+                <i class="fa-solid fa-trophy text-xs"></i> {{TabLeaderboard}}
+            </button>
             <button class="rounded-full bg-bb-card text-bb-text2 border border-bb-border px-4 py-1.5 text-sm font-medium flex items-center gap-2 transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2" onclick="switchTab('my')" id="tab-my">
                 <i class="fa-solid fa-user text-xs"></i> {{TabMy}}
             </button>
@@ -160,25 +163,86 @@ tailwind.config = {
             </div>
         </div>
 
+        <!-- Leaderboard -->
+        <div id="page-leaderboard" class="h-full overflow-y-auto px-8 py-6 hidden">
+            <h2 class="text-lg font-bold text-bb-title flex items-center gap-2 mb-5">
+                <i class="fa-solid fa-trophy text-bb-amber text-sm"></i> {{LeaderboardTitle}}
+            </h2>
+
+            <!-- Category pills -->
+            <div class="flex gap-2 mb-6">
+                <button onclick="switchLeaderboardCategory('bountiesCompleted')" id="lb-pill-bountiesCompleted" class="px-4 py-1.5 rounded-full text-sm font-semibold bg-bb-amber text-bb-bg border border-bb-amber transition-all duration-150">
+                    <i class="fa-solid fa-crosshairs text-xs mr-1"></i> {{LbTopHunters}}
+                </button>
+                <button onclick="switchLeaderboardCategory('totalEarned')" id="lb-pill-totalEarned" class="px-4 py-1.5 rounded-full text-sm font-medium bg-bb-card text-bb-text2 border border-bb-border transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2">
+                    <i class="fa-solid fa-coins text-xs mr-1"></i> {{LbTopEarners}}
+                </button>
+                <button onclick="switchLeaderboardCategory('totalSpent')" id="lb-pill-totalSpent" class="px-4 py-1.5 rounded-full text-sm font-medium bg-bb-card text-bb-text2 border border-bb-border transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2">
+                    <i class="fa-solid fa-hand-holding-dollar text-xs mr-1"></i> {{LbTopSpenders}}
+                </button>
+            </div>
+
+            <!-- Leaderboard table -->
+            <div id="lb-table" class="space-y-2"></div>
+            <div id="lb-no-data" class="hidden text-center text-bb-text2 py-16">
+                <i class="fa-solid fa-chart-simple text-4xl mb-4 block"></i>
+                <p class="text-sm">{{LbNoData}}</p>
+            </div>
+
+            <!-- Player position (if not in top 10) -->
+            <div id="lb-my-position" class="hidden mt-4 border-t border-bb-border pt-4"></div>
+        </div>
+
         <!-- My Bounties -->
         <div id="page-my" class="h-full overflow-y-auto px-8 py-6 hidden">
             <h2 class="text-lg font-bold text-bb-title flex items-center gap-2 mb-5">
                 <i class="fa-solid fa-user text-bb-amber text-sm"></i> {{MyTitle}}
             </h2>
 
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-5 mb-6">
-                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-5 text-center bg-bb-card/50">
-                    <div id="stat-placed" class="text-3xl font-bold text-bb-text">0</div>
+            <!-- Persistent Stats (3x2 grid) -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
+                    <div id="stat-placed" class="text-2xl font-bold text-bb-text">0</div>
                     <div class="text-xs text-bb-text2 mt-1">{{StatPlaced}}</div>
                 </div>
-                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-5 text-center bg-bb-card/50">
-                    <div id="stat-tracking" class="text-3xl font-bold text-bb-text">0</div>
-                    <div class="text-xs text-bb-text2 mt-1">{{StatTracking}}</div>
+                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
+                    <div id="stat-completed" class="text-2xl font-bold text-bb-text">0</div>
+                    <div class="text-xs text-bb-text2 mt-1">{{StatCompleted}}</div>
                 </div>
-                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-5 text-center bg-bb-card/50">
-                    <div id="stat-spent" class="text-3xl font-bold text-bb-amber">0</div>
+                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
+                    <div id="stat-survived" class="text-2xl font-bold text-bb-text">0</div>
+                    <div class="text-xs text-bb-text2 mt-1">{{StatSurvived}}</div>
+                </div>
+                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
+                    <div id="stat-earned" class="text-2xl font-bold text-bb-amber">0</div>
+                    <div class="text-xs text-bb-text2 mt-1">{{StatEarned}}</div>
+                </div>
+                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
+                    <div id="stat-spent" class="text-2xl font-bold text-bb-amber">0</div>
                     <div class="text-xs text-bb-text2 mt-1">{{StatSpent}}</div>
+                </div>
+                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
+                    <div id="stat-streak" class="text-2xl font-bold text-bb-text">0</div>
+                    <div class="text-xs text-bb-text2 mt-1">{{StatBestStreak}}</div>
+                </div>
+            </div>
+
+            <!-- Hunter Rank -->
+            <h3 class="text-xs font-bold text-bb-text2 tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-medal text-bb-amber"></i> {{SectionRank}}
+            </h3>
+            <div id="rank-section" class="border border-bb-border rounded-xl p-5 bg-bb-card/50 mb-6">
+                <div class="flex items-center gap-4 mb-3">
+                    <div id="rank-icon" class="w-12 h-12 rounded-full bg-bb-amber/20 flex items-center justify-center">
+                        <i class="fa-solid fa-seedling text-bb-amber text-xl"></i>
+                    </div>
+                    <div>
+                        <div id="rank-name" class="text-lg font-bold text-bb-amber">Rookie</div>
+                        <div id="rank-progress-text" class="text-xs text-bb-text2">0 / 5 kills to next rank</div>
+                    </div>
+                </div>
+                <div class="w-full bg-bb-bg rounded-full h-2.5 overflow-hidden">
+                    <div id="rank-progress-bar" class="h-full bg-bb-amber rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
             </div>
 
@@ -234,6 +298,8 @@ const CFG_UI = {
     errNoTarget: '{{ErrNoTarget}}',
     errAmountMin: '{{ErrAmountMin}}',
     errAmountMax: '{{ErrAmountMax}}',
+    lbYourPosition: '{{LbYourPosition}}',
+    lbNoData: '{{LbNoData}}',
 };
 
 // --- State ---
@@ -241,6 +307,11 @@ let bounties = {};
 let players = [];
 let localSteamID = '';
 let currentTab = 'active';
+let playerStats = {};
+let leaderboardData = {};
+let leaderboardPlayerRank = 0;
+let leaderboardPlayerValue = 0;
+let currentLbCategory = 'bountiesCompleted';
 
 const ICONS = ['fa-skull-crossbones','fa-bolt-lightning','fa-ghost','fa-dragon','fa-fire-flame-curved','fa-shield-halved','fa-gem','fa-crown','fa-star','fa-crosshairs','fa-wand-sparkles','fa-hat-wizard'];
 const ICON_COLORS = ['#ef4444','#f59e0b','#8b5cf6','#06b6d4','#22c55e','#ec4899','#3b82f6','#f97316','#a855f7','#14b8a6','#eab308','#6366f1'];
@@ -265,7 +336,7 @@ const TAB_INACTIVE_CLS = ['bg-bb-card','text-bb-text2','border-bb-border','font-
 
 function switchTab(tab) {
     currentTab = tab;
-    ['active','place','my'].forEach(t => {
+    ['active','place','leaderboard','my'].forEach(t => {
         document.getElementById('page-' + t).classList.toggle('hidden', t !== tab);
         let btn = document.getElementById('tab-' + t);
         if (t === tab) {
@@ -276,6 +347,12 @@ function switchTab(tab) {
             TAB_INACTIVE_CLS.forEach(c => btn.classList.add(c));
         }
     });
+    if (tab === 'leaderboard') {
+        bb.requestLeaderboard(currentLbCategory);
+    }
+    if (tab === 'my') {
+        bb.requestStats();
+    }
 }
 
 // --- Render ---
@@ -326,11 +403,6 @@ function renderMyBounties() {
     let all = Object.values(bounties);
     let placed = all.filter(b => b.placerSteamID === localSteamID && (b.status === 'active' || b.status === 'hunting'));
     let tracking = all.filter(b => b.hunterSteamID === localSteamID && b.status === 'hunting');
-    let totalSpent = placed.reduce((s, b) => s + (b.amount || 0), 0);
-
-    document.getElementById('stat-placed').textContent = placed.length;
-    document.getElementById('stat-tracking').textContent = tracking.length;
-    document.getElementById('stat-spent').textContent = formatNumber(totalSpent);
 
     // Placed list
     let placedEl = document.getElementById('my-placed');
@@ -457,6 +529,128 @@ function submitBounty() {
 function acceptBounty(id) { bb.acceptBounty(id); closeModal(); }
 function cancelBounty(id) { bb.cancelBounty(id); closeModal(); }
 
+// --- Ranks ---
+const RANKS = {{RanksJSON}};
+
+function getRank(kills) {
+    let rank = RANKS[0];
+    for (let i = RANKS.length - 1; i >= 0; i--) {
+        if (kills >= RANKS[i].kills) { rank = RANKS[i]; break; }
+    }
+    return rank;
+}
+
+function getNextRank(kills) {
+    for (let i = 0; i < RANKS.length; i++) {
+        if (kills < RANKS[i].kills) return RANKS[i];
+    }
+    return null;
+}
+
+// --- Leaderboard ---
+function switchLeaderboardCategory(cat) {
+    currentLbCategory = cat;
+    ['bountiesCompleted','totalEarned','totalSpent'].forEach(c => {
+        let pill = document.getElementById('lb-pill-' + c);
+        if (c === cat) {
+            pill.className = 'px-4 py-1.5 rounded-full text-sm font-semibold bg-bb-amber text-bb-bg border border-bb-amber transition-all duration-150';
+        } else {
+            pill.className = 'px-4 py-1.5 rounded-full text-sm font-medium bg-bb-card text-bb-text2 border border-bb-border transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2';
+        }
+    });
+    bb.requestLeaderboard(cat);
+}
+
+function renderLeaderboard(entries, myRank, myValue) {
+    let table = document.getElementById('lb-table');
+    let noData = document.getElementById('lb-no-data');
+    let myPos = document.getElementById('lb-my-position');
+
+    if (!entries || entries.length === 0) {
+        table.innerHTML = '';
+        noData.classList.remove('hidden');
+        myPos.classList.add('hidden');
+        return;
+    }
+    noData.classList.add('hidden');
+
+    let isValueMoney = (currentLbCategory === 'totalEarned' || currentLbCategory === 'totalSpent');
+
+    table.innerHTML = entries.map(e => {
+        let medalColor = '';
+        let medalIcon = '';
+        if (e.rank === 1) { medalColor = 'text-yellow-400'; medalIcon = 'fa-trophy'; }
+        else if (e.rank === 2) { medalColor = 'text-gray-300'; medalIcon = 'fa-medal'; }
+        else if (e.rank === 3) { medalColor = 'text-amber-600'; medalIcon = 'fa-medal'; }
+
+        let rank = getRank(e.bountiesCompleted || 0);
+        let isLocal = (e.steamid === localSteamID);
+        let borderCls = isLocal ? 'border-bb-amber' : 'border-bb-border';
+        let valDisplay = isValueMoney ? (CFG_CURRENCY_SYMBOL + formatNumber(e.value)) : formatNumber(e.value);
+
+        return `
+        <div class="flex items-center justify-between border ${borderCls} rounded-lg px-5 py-3 bg-bb-card/50 transition-all duration-150 hover:bg-bb-card2">
+            <div class="flex items-center gap-4">
+                <div class="w-8 text-center font-bold text-lg ${medalColor || 'text-bb-text2'}">
+                    ${medalIcon ? '<i class="fa-solid ' + medalIcon + '"></i>' : '#' + e.rank}
+                </div>
+                <div>
+                    <div class="font-bold text-bb-text ${isLocal ? 'text-bb-amber' : ''}">${escHtml(e.name || 'Unknown')}</div>
+                    <div class="text-[10px] text-bb-text2 flex items-center gap-1">
+                        <i class="fa-solid ${rank.icon} text-bb-amber"></i> ${rank.name}
+                    </div>
+                </div>
+            </div>
+            <div class="text-bb-amber font-bold text-lg">${valDisplay}</div>
+        </div>`;
+    }).join('');
+
+    // Player position if not in top
+    let inTop = entries.some(e => e.steamid === localSteamID);
+    if (!inTop && myRank > 0) {
+        let valDisplay = isValueMoney ? (CFG_CURRENCY_SYMBOL + formatNumber(myValue)) : formatNumber(myValue);
+        myPos.innerHTML = `
+        <div class="flex items-center justify-between border border-bb-amber rounded-lg px-5 py-3 bg-bb-card/50">
+            <div class="flex items-center gap-4">
+                <div class="w-8 text-center font-bold text-lg text-bb-text2">#${myRank}</div>
+                <div class="font-bold text-bb-amber">${CFG_UI.lbYourPosition}</div>
+            </div>
+            <div class="text-bb-amber font-bold text-lg">${valDisplay}</div>
+        </div>`;
+        myPos.classList.remove('hidden');
+    } else {
+        myPos.classList.add('hidden');
+    }
+}
+
+// --- Stats & Rank display ---
+function renderMyStats() {
+    let s = playerStats;
+    document.getElementById('stat-placed').textContent = formatNumber(s.bountiesPlaced || 0);
+    document.getElementById('stat-completed').textContent = formatNumber(s.bountiesCompleted || 0);
+    document.getElementById('stat-survived').textContent = formatNumber(s.bountiesSurvived || 0);
+    document.getElementById('stat-earned').textContent = CFG_CURRENCY_SYMBOL + formatNumber(s.totalEarned || 0);
+    document.getElementById('stat-spent').textContent = CFG_CURRENCY_SYMBOL + formatNumber(s.totalSpent || 0);
+    document.getElementById('stat-streak').textContent = formatNumber(s.bestStreak || 0);
+
+    // Rank
+    let kills = s.bountiesCompleted || 0;
+    let rank = getRank(kills);
+    let next = getNextRank(kills);
+
+    document.getElementById('rank-icon').innerHTML = '<i class="fa-solid ' + rank.icon + ' text-bb-amber text-xl"></i>';
+    document.getElementById('rank-name').textContent = rank.name;
+
+    if (next) {
+        let progress = ((kills - rank.kills) / (next.kills - rank.kills)) * 100;
+        document.getElementById('rank-progress-bar').style.width = Math.min(progress, 100) + '%';
+        document.getElementById('rank-progress-text').textContent = kills + ' / ' + next.kills + ' kills to next rank';
+    } else {
+        document.getElementById('rank-progress-bar').style.width = '100%';
+        document.getElementById('rank-progress-text').textContent = 'Max rank achieved!';
+    }
+}
+
 // --- Data injection (called from Lua) ---
 function setBounties(json) {
     let arr = JSON.parse(json);
@@ -484,6 +678,19 @@ function setPlayers(json) {
 }
 
 function setLocalSteamID(id) { localSteamID = id; }
+
+function setStats(json) {
+    playerStats = JSON.parse(json);
+    renderMyStats();
+}
+
+function setLeaderboard(json, category, myRank, myValue) {
+    let entries = JSON.parse(json);
+    leaderboardData = entries;
+    leaderboardPlayerRank = myRank;
+    leaderboardPlayerValue = myValue;
+    renderLeaderboard(entries, myRank, myValue);
+}
 
 // --- Player Preview ---
 function updatePreview() {
@@ -553,7 +760,11 @@ local function BuildHTML()
     replacements["MinBounty"] = tostring(BountyBoard.Config.MinBounty)
     replacements["MaxBounty"] = tostring(BountyBoard.Config.MaxBounty)
 
+    -- Build ranks JSON for JS (replaced separately due to special characters)
+    local ranksJSON = util.TableToJSON(BountyBoard.Config.Ranks)
+
     local html = HTML_TEMPLATE
+    html = string.Replace(html, "{{RanksJSON}}", ranksJSON)
     html = string.gsub(html, "{{(%w+)}}", function(key)
         return replacements[key] or key
     end)
@@ -620,6 +831,17 @@ function BountyBoard.OpenMenu()
     dhtml:AddFunction("bb", "cancelBounty", function(id)
         net.Start("BountyBoard_CancelBounty")
             net.WriteString(id or "")
+        net.SendToServer()
+    end)
+
+    dhtml:AddFunction("bb", "requestStats", function()
+        net.Start("BountyBoard_RequestStats")
+        net.SendToServer()
+    end)
+
+    dhtml:AddFunction("bb", "requestLeaderboard", function(category)
+        net.Start("BountyBoard_RequestLeaderboard")
+            net.WriteString(category or "bountiesCompleted")
         net.SendToServer()
     end)
 
@@ -732,6 +954,28 @@ net.Receive("BountyBoard_SendBounties", function()
         BountyBoard.CachedBounties[b.id] = b
     end
     BountyBoard.RefreshDHTML()
+end)
+
+net.Receive("BountyBoard_SendStats", function()
+    local stats = net.ReadTable()
+    if not IsValid(BountyBoard.DHTML) then return end
+
+    local json = util.TableToJSON(stats)
+    json = string.gsub(json, "'", "\\'")
+    BountyBoard.DHTML:QueueJavascript("setStats('" .. json .. "')")
+end)
+
+net.Receive("BountyBoard_SendLeaderboard", function()
+    local category = net.ReadString()
+    local entries = net.ReadTable()
+    local myRank = net.ReadUInt(16)
+    local myValue = net.ReadUInt(32)
+
+    if not IsValid(BountyBoard.DHTML) then return end
+
+    local json = util.TableToJSON(entries)
+    json = string.gsub(json, "'", "\\'")
+    BountyBoard.DHTML:QueueJavascript("setLeaderboard('" .. json .. "', '" .. category .. "', " .. myRank .. ", " .. myValue .. ")")
 end)
 
 net.Receive("BountyBoard_BountyUpdate", function()

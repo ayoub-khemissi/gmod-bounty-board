@@ -283,6 +283,12 @@ function BountyBoard.PlaceBounty(placer, targetSteamID, amount, reason)
     BountyBoard.Bounties[id] = bounty
     BountyBoard.Save()
 
+    -- Track stats
+    local placerStats = BountyBoard.GetStats(placer:SteamID())
+    placerStats.bountiesPlaced = (placerStats.bountiesPlaced or 0) + 1
+    placerStats.totalSpent = (placerStats.totalSpent or 0) + amount
+    BountyBoard.SaveStats()
+
     Log(placer:Nick() .. " placed a bounty of " .. Cur(amount) .. " on " .. targetPly:Nick())
 
     -- Notifications
@@ -375,6 +381,24 @@ function BountyBoard.CompleteBounty(bountyID, killer)
         killer:addMoney(bounty.amount)
     end
 
+    -- Track hunter stats
+    local hunterStats = BountyBoard.GetStats(bounty.hunterSteamID)
+    hunterStats.bountiesCompleted = (hunterStats.bountiesCompleted or 0) + 1
+    hunterStats.totalEarned = (hunterStats.totalEarned or 0) + bounty.amount
+    hunterStats.currentStreak = (hunterStats.currentStreak or 0) + 1
+    if hunterStats.currentStreak > (hunterStats.bestStreak or 0) then
+        hunterStats.bestStreak = hunterStats.currentStreak
+    end
+    if bounty.amount > (hunterStats.highestBounty or 0) then
+        hunterStats.highestBounty = bounty.amount
+    end
+
+    -- Track target death
+    local targetStats = BountyBoard.GetStats(bounty.targetSteamID)
+    targetStats.deaths = (targetStats.deaths or 0) + 1
+
+    BountyBoard.SaveStats()
+
     local killerName = IsValid(killer) and killer:Nick() or bounty.hunterName
     Log(killerName .. " completed bounty on " .. bounty.targetName .. " (" .. Cur(bounty.amount) .. ")")
 
@@ -437,6 +461,18 @@ function BountyBoard.ExpireBounty(bountyID)
     bounty.status = "expired"
     BountyBoard.Save()
     BountyBoard.StopTracking(bountyID)
+
+    -- Track target survived
+    local targetStats = BountyBoard.GetStats(bounty.targetSteamID)
+    targetStats.bountiesSurvived = (targetStats.bountiesSurvived or 0) + 1
+
+    -- Reset hunter streak if was being hunted
+    if bounty.hunterSteamID then
+        local hunterStats = BountyBoard.GetStats(bounty.hunterSteamID)
+        hunterStats.currentStreak = 0
+    end
+
+    BountyBoard.SaveStats()
 
     local placer = GetPlayerBySteamID(bounty.placerSteamID)
     if IsValid(placer) then

@@ -173,6 +173,23 @@ BountyBoard.Config.ChatCommands = {
 }
 
 --[[------------------------------------------------------------
+    HUNTER RANKS
+    Ranks based on bountiesCompleted.
+    Format: { kills = <threshold>, name = "<rank name>", icon = "<fontawesome icon>" }
+    Must be sorted from lowest to highest kills.
+--------------------------------------------------------------]]
+
+BountyBoard.Config.Ranks = {
+    { kills = 0,   name = "Rookie",       icon = "fa-seedling" },
+    { kills = 5,   name = "Tracker",      icon = "fa-binoculars" },
+    { kills = 15,  name = "Stalker",      icon = "fa-eye" },
+    { kills = 30,  name = "Hunter",       icon = "fa-crosshairs" },
+    { kills = 50,  name = "Slayer",       icon = "fa-skull" },
+    { kills = 75,  name = "Executioner",  icon = "fa-skull-crossbones" },
+    { kills = 100, name = "Legendary",    icon = "fa-crown" },
+}
+
+--[[------------------------------------------------------------
     UI THEME (DHTML / Tailwind colors)
     These are injected into the HTML template.
     Use hex color codes WITHOUT the #
@@ -222,6 +239,7 @@ BountyBoard.Config.UI = {
     -- Tabs
     TabActive       = "Active Bounties",
     TabPlace        = "Place Bounty",
+    TabLeaderboard  = "Leaderboard",
     TabMy           = "My Bounties",
 
     -- Active Bounties page
@@ -242,11 +260,27 @@ BountyBoard.Config.UI = {
     ErrAmountMin    = "Minimum bounty amount is %s.",
     ErrAmountMax    = "Maximum bounty amount is %s.",
 
+    -- Leaderboard page
+    LeaderboardTitle = "Leaderboard",
+    LbTopHunters    = "Top Hunters",
+    LbTopEarners    = "Top Earners",
+    LbTopSpenders   = "Top Spenders",
+    LbRank          = "#",
+    LbPlayer        = "Player",
+    LbValue         = "Value",
+    LbYourPosition  = "Your position",
+    LbNoData        = "No data yet...",
+
     -- My Bounties page
     MyTitle         = "My Bounties",
     StatPlaced      = "Placed",
-    StatTracking    = "Tracking",
+    StatCompleted   = "Completed",
+    StatSurvived    = "Survived",
+    StatEarned      = "Total Earned",
     StatSpent       = "Total Spent",
+    StatBestStreak  = "Best Streak",
+    StatTracking    = "Tracking",
+    SectionRank     = "HUNTER RANK",
     SectionPlaced   = "BOUNTIES PLACED",
     SectionTracking = "TRACKING",
     NoPlaced        = "No bounties placed.",

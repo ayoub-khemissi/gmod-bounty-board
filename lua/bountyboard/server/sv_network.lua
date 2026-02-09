@@ -7,6 +7,10 @@ util.AddNetworkString("BountyBoard_CancelBounty")
 util.AddNetworkString("BountyBoard_UpdatePosition")
 util.AddNetworkString("BountyBoard_Notify")
 util.AddNetworkString("BountyBoard_BountyUpdate")
+util.AddNetworkString("BountyBoard_RequestStats")
+util.AddNetworkString("BountyBoard_SendStats")
+util.AddNetworkString("BountyBoard_RequestLeaderboard")
+util.AddNetworkString("BountyBoard_SendLeaderboard")
 
 -------------------------------------------------
 -- Sender helpers
@@ -106,4 +110,50 @@ net.Receive("BountyBoard_CancelBounty", function(len, ply)
     local bountyID = net.ReadString()
 
     BountyBoard.CancelBounty(ply, bountyID)
+end)
+
+-------------------------------------------------
+-- Stats & Leaderboard
+-------------------------------------------------
+
+function BountyBoard.SendPlayerStats(ply)
+    local stats = BountyBoard.GetStats(ply:SteamID())
+    net.Start("BountyBoard_SendStats")
+        net.WriteTable(stats)
+    net.Send(ply)
+end
+
+function BountyBoard.SendLeaderboard(ply, category)
+    local top, allEntries = BountyBoard.GetLeaderboard(category, 10)
+
+    -- Find player position if not in top 10
+    local playerRank = 0
+    local playerValue = 0
+    local plySID = ply:SteamID()
+    for i, entry in ipairs(allEntries) do
+        if entry.steamid == plySID then
+            playerRank = i
+            playerValue = entry.value
+            break
+        end
+    end
+
+    net.Start("BountyBoard_SendLeaderboard")
+        net.WriteString(category)
+        net.WriteTable(top)
+        net.WriteUInt(playerRank, 16)
+        net.WriteUInt(playerValue, 32)
+    net.Send(ply)
+end
+
+net.Receive("BountyBoard_RequestStats", function(len, ply)
+    BountyBoard.SendPlayerStats(ply)
+end)
+
+net.Receive("BountyBoard_RequestLeaderboard", function(len, ply)
+    local category = net.ReadString()
+    -- Validate category
+    local valid = { bountiesCompleted = true, totalEarned = true, totalSpent = true }
+    if not valid[category] then category = "bountiesCompleted" end
+    BountyBoard.SendLeaderboard(ply, category)
 end)

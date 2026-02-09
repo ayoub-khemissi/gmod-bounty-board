@@ -14,6 +14,7 @@ if SERVER then
 
     -- Include server files
     include("bountyboard/server/sv_network.lua")
+    include("bountyboard/server/sv_stats.lua")
     include("bountyboard/server/sv_bounties.lua")
 
     print("[BountyBoard] Server loaded successfully!")
