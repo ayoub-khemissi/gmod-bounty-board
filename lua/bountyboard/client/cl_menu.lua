@@ -49,6 +49,10 @@ tailwind.config = {
     @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
     @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
     select option { background: #{{BgCard}}; color: #{{TextPrimary}}; }
+    @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+    .toast-in { animation: toastIn 0.25s ease forwards; }
+    .toast-out { animation: toastOut 0.3s ease forwards; }
 </style>
 </head>
 <body>
@@ -132,10 +136,6 @@ tailwind.config = {
                             <textarea id="reason-input" rows="3" placeholder="{{PlaceholderReason}}" class="w-full bg-bb-card border border-bb-border rounded-lg px-4 py-3 text-sm text-bb-text resize-none transition-colors duration-150 focus:border-bb-amber"></textarea>
                         </div>
 
-                        <div id="form-error" class="hidden mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-circle-exclamation"></i>
-                            <span id="form-error-text"></span>
-                        </div>
 
                         <button onclick="submitBounty()" class="w-full bg-bb-amber text-bb-bg font-bold py-3 rounded-lg text-sm flex items-center justify-center gap-2 transition-all duration-150 hover:bg-bb-amberdark active:scale-[0.98]">
                             <i class="fa-solid fa-paper-plane"></i> {{SubmitButton}}
@@ -264,6 +264,9 @@ tailwind.config = {
     </div>
   </div>
 </div>
+
+<!-- Toast notifications -->
+<div id="toast-container" class="fixed top-4 right-4 flex flex-col gap-2 z-[9999] max-w-sm"></div>
 
 <!-- Modal overlay -->
 <div id="modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-[fadeIn_0.15s_ease]" onclick="closeModal(event)">
@@ -506,12 +509,10 @@ function closeModal(e) {
 
 // --- Actions (call Lua) ---
 function showFormError(msg) {
-    let el = document.getElementById('form-error');
-    document.getElementById('form-error-text').textContent = msg;
-    el.classList.remove('hidden');
+    showNotification(msg, 'error');
 }
 function hideFormError() {
-    document.getElementById('form-error').classList.add('hidden');
+    // no-op: toasts auto-dismiss
 }
 
 function submitBounty() {
@@ -724,6 +725,42 @@ document.getElementById('target-select').addEventListener('change', updatePrevie
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') bb.closeMenu();
 });
+
+// --- Notifications (in-panel toasts) ---
+const TOAST_ICONS = {
+    error:   'fa-circle-exclamation',
+    success: 'fa-circle-check',
+    warning: 'fa-triangle-exclamation',
+    info:    'fa-circle-info',
+};
+const TOAST_COLORS = {
+    error:   { bg: 'bg-red-500/15', border: 'border-red-500/30', text: 'text-red-400', icon: 'text-red-400' },
+    success: { bg: 'bg-emerald-500/15', border: 'border-emerald-500/30', text: 'text-emerald-400', icon: 'text-emerald-400' },
+    warning: { bg: 'bg-amber-500/15', border: 'border-amber-500/30', text: 'text-amber-400', icon: 'text-amber-400' },
+    info:    { bg: 'bg-blue-500/15', border: 'border-blue-500/30', text: 'text-blue-400', icon: 'text-blue-400' },
+};
+
+function showNotification(msg, type) {
+    type = type || 'info';
+    const c = TOAST_COLORS[type] || TOAST_COLORS.info;
+    const icon = TOAST_ICONS[type] || TOAST_ICONS.info;
+    const container = document.getElementById('toast-container');
+
+    const el = document.createElement('div');
+    el.className = `flex items-center gap-3 px-4 py-3 rounded-lg border ${c.bg} ${c.border} backdrop-blur-sm toast-in`;
+    el.innerHTML = `<i class="fa-solid ${icon} ${c.icon} text-base shrink-0"></i><span class="${c.text} text-sm font-medium">${msg}</span>`;
+
+    container.appendChild(el);
+
+    // Keep max 5
+    while (container.children.length > 5) container.removeChild(container.firstChild);
+
+    setTimeout(() => {
+        el.classList.remove('toast-in');
+        el.classList.add('toast-out');
+        el.addEventListener('animationend', () => el.remove());
+    }, 4500);
+}
 
 // --- Util ---
 function escHtml(s) { let d = document.createElement('div'); d.textContent = s; return d.innerHTML; }

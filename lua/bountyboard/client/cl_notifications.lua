@@ -53,5 +53,13 @@ hook.Add("HUDPaint", "BountyBoard_Notifications", function()
 end)
 
 net.Receive("BountyBoard_Notify", function()
-    BountyBoard.AddNotification(net.ReadString(), net.ReadString())
+    local msg = net.ReadString()
+    local notifType = net.ReadString()
+
+    if IsValid(BountyBoard.DHTML) then
+        local safe = string.gsub(msg, "'", "\\'")
+        BountyBoard.DHTML:QueueJavascript("showNotification('" .. safe .. "', '" .. notifType .. "')")
+    else
+        BountyBoard.AddNotification(msg, notifType)
+    end
 end)
