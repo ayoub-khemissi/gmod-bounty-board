@@ -165,9 +165,14 @@ tailwind.config = {
 
         <!-- Leaderboard -->
         <div id="page-leaderboard" class="h-full overflow-y-auto px-8 py-6 hidden">
-            <h2 class="text-lg font-bold text-bb-title flex items-center gap-2 mb-5">
-                <i class="fa-solid fa-trophy text-bb-amber text-sm"></i> {{LeaderboardTitle}}
-            </h2>
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-lg font-bold text-bb-title flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-bb-amber text-sm"></i> {{LeaderboardTitle}}
+                </h2>
+                <button onclick="refreshLeaderboard()" id="btn-refresh-lb" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-gray-900 border border-white/80 hover:bg-gray-100 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Refresh
+                </button>
+            </div>
 
             <!-- Category pills -->
             <div class="flex gap-2 mb-6">
@@ -195,9 +200,14 @@ tailwind.config = {
 
         <!-- My Bounties -->
         <div id="page-my" class="h-full overflow-y-auto px-8 py-6 hidden">
-            <h2 class="text-lg font-bold text-bb-title flex items-center gap-2 mb-5">
-                <i class="fa-solid fa-user text-bb-amber text-sm"></i> {{MyTitle}}
-            </h2>
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-lg font-bold text-bb-title flex items-center gap-2">
+                    <i class="fa-solid fa-user text-bb-amber text-sm"></i> {{MyTitle}}
+                </h2>
+                <button onclick="refreshMyStats()" id="btn-refresh-my" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-gray-900 border border-white/80 hover:bg-gray-100 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Refresh
+                </button>
+            </div>
 
             <!-- Persistent Stats (3x2 grid) -->
             <div class="grid grid-cols-3 gap-4 mb-6">
@@ -548,6 +558,22 @@ function getNextRank(kills) {
     return null;
 }
 
+// --- Refresh ---
+function refreshMyStats() {
+    let icon = document.querySelector('#btn-refresh-my i');
+    icon.classList.add('animate-spin');
+    bb.requestStats();
+    bb.refreshBounties();
+    setTimeout(() => { icon.classList.remove('animate-spin'); }, 1000);
+}
+
+function refreshLeaderboard() {
+    let icon = document.querySelector('#btn-refresh-lb i');
+    icon.classList.add('animate-spin');
+    bb.requestLeaderboard(currentLbCategory);
+    setTimeout(() => { icon.classList.remove('animate-spin'); }, 1000);
+}
+
 // --- Leaderboard ---
 function switchLeaderboardCategory(cat) {
     currentLbCategory = cat;
@@ -879,6 +905,11 @@ function BountyBoard.OpenMenu()
     dhtml:AddFunction("bb", "requestLeaderboard", function(category)
         net.Start("BountyBoard_RequestLeaderboard")
             net.WriteString(category or "bountiesCompleted")
+        net.SendToServer()
+    end)
+
+    dhtml:AddFunction("bb", "refreshBounties", function()
+        net.Start("BountyBoard_RequestBounties")
         net.SendToServer()
     end)
 
