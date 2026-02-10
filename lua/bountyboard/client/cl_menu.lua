@@ -97,7 +97,7 @@ tailwind.config = {
                 <i class="fa-solid fa-user text-xs"></i> {{TabMy}}
             </button>
         </div>
-        <button onclick="bb.closeMenu()" class="w-9 h-9 rounded-lg flex items-center justify-center text-bb-text2 hover:text-bb-text hover:bg-white/10 transition shrink-0">
+        <button onclick="bb.closeMenu()" class="w-9 h-9 rounded-lg flex items-center justify-center bg-black text-white hover:bg-white hover:text-black transition shrink-0">
             <i class="fa-solid fa-xmark text-lg"></i>
         </button>
     </div>
@@ -877,12 +877,18 @@ function BountyBoard.OpenMenu()
     frame:MakePopup()
     frame:DockPadding(0, 0, 0, 0)
     frame.Paint = function() end
-    frame.OnKeyCodePressed = function(_, key)
-        if key == KEY_ESCAPE then
-            frame:Close()
-        end
-    end
     BountyBoard.MenuFrame = frame
+
+    hook.Add("PlayerBindPress", "BountyBoard_BlockESC", function(_, bind)
+        if string.find(bind, "cancelselect") and IsValid(frame) then
+            frame:Close()
+            return true
+        end
+    end)
+
+    frame.OnClose = function()
+        hook.Remove("PlayerBindPress", "BountyBoard_BlockESC")
+    end
 
     local dhtml = vgui.Create("DHTML", frame)
     dhtml:SetPos(0, 0)
@@ -892,7 +898,10 @@ function BountyBoard.OpenMenu()
 
     -- Expose Lua functions to JS
     dhtml:AddFunction("bb", "closeMenu", function()
-        if IsValid(frame) then frame:Close() end
+        if IsValid(frame) then
+            frame:Close()
+            timer.Simple(0, function() gui.HideGameUI() end)
+        end
     end)
 
     dhtml:AddFunction("bb", "placeBounty", function(steamid, amount, reason)
@@ -977,6 +986,7 @@ function BountyBoard.OpenMenu()
     end)
 
     dhtml:SetHTML(BuildHTML())
+    dhtml:RequestFocus()
 
     -- Wait for page to load, then inject data
     dhtml:QueueJavascript("setLocalSteamID('" .. LocalPlayer():SteamID() .. "')")
