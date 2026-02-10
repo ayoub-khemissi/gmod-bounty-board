@@ -2,6 +2,18 @@ BountyBoard.CachedBounties = BountyBoard.CachedBounties or {}
 BountyBoard.MenuFrame = nil
 BountyBoard.DHTML = nil
 
+-- Properly escape a string for safe embedding inside a JS string literal
+local function SafeJSString(str)
+    str = str or ""
+    str = string.gsub(str, "\\", "\\\\")
+    str = string.gsub(str, "'", "\\'")
+    str = string.gsub(str, '"', '\\"')
+    str = string.gsub(str, "\n", "\\n")
+    str = string.gsub(str, "\r", "\\r")
+    str = string.gsub(str, "</", "<\\/")
+    return str
+end
+
 -------------------------------------------------
 -- HTML Template
 -------------------------------------------------
@@ -774,7 +786,13 @@ function showNotification(msg, type) {
 
     const el = document.createElement('div');
     el.className = `flex items-center gap-3 px-4 py-3 rounded-lg border ${c.bg} ${c.border} backdrop-blur-sm toast-in`;
-    el.innerHTML = `<i class="fa-solid ${icon} ${c.icon} text-base shrink-0"></i><span class="${c.text} text-sm font-medium">${msg}</span>`;
+    const iconEl = document.createElement('i');
+    iconEl.className = `fa-solid ${icon} ${c.icon} text-base shrink-0`;
+    const spanEl = document.createElement('span');
+    spanEl.className = `${c.text} text-sm font-medium`;
+    spanEl.textContent = msg;
+    el.appendChild(iconEl);
+    el.appendChild(spanEl);
 
     container.appendChild(el);
 
@@ -869,7 +887,7 @@ function BountyBoard.OpenMenu()
     local dhtml = vgui.Create("DHTML", frame)
     dhtml:SetPos(0, 0)
     dhtml:SetSize(ScrW(), ScrH())
-    dhtml:SetAllowLua(true)
+    dhtml:SetAllowLua(false)
     BountyBoard.DHTML = dhtml
 
     -- Expose Lua functions to JS
@@ -979,8 +997,7 @@ function BountyBoard.RefreshDHTML()
     end
 
     local json = util.TableToJSON(list)
-    json = string.gsub(json, "'", "\\'")
-    BountyBoard.DHTML:QueueJavascript("setBounties('" .. json .. "')")
+    BountyBoard.DHTML:QueueJavascript("setBounties('" .. SafeJSString(json) .. "')")
 end
 
 function BountyBoard.InjectPlayers()
@@ -999,16 +1016,14 @@ function BountyBoard.InjectPlayers()
     end
 
     local json = util.TableToJSON(list)
-    json = string.gsub(json, "'", "\\'")
-    BountyBoard.DHTML:QueueJavascript("setPlayers('" .. json .. "')")
+    BountyBoard.DHTML:QueueJavascript("setPlayers('" .. SafeJSString(json) .. "')")
 end
 
 function BountyBoard.UpdateDHTML(bounty, action)
     if not IsValid(BountyBoard.DHTML) then return end
 
     local json = util.TableToJSON(bounty)
-    json = string.gsub(json, "'", "\\'")
-    BountyBoard.DHTML:QueueJavascript("updateBounty('" .. json .. "', '" .. action .. "')")
+    BountyBoard.DHTML:QueueJavascript("updateBounty('" .. SafeJSString(json) .. "', '" .. SafeJSString(action) .. "')")
 end
 
 -------------------------------------------------
@@ -1029,8 +1044,7 @@ net.Receive("BountyBoard_SendStats", function()
     if not IsValid(BountyBoard.DHTML) then return end
 
     local json = util.TableToJSON(stats)
-    json = string.gsub(json, "'", "\\'")
-    BountyBoard.DHTML:QueueJavascript("setStats('" .. json .. "')")
+    BountyBoard.DHTML:QueueJavascript("setStats('" .. SafeJSString(json) .. "')")
 end)
 
 net.Receive("BountyBoard_SendLeaderboard", function()
@@ -1042,8 +1056,7 @@ net.Receive("BountyBoard_SendLeaderboard", function()
     if not IsValid(BountyBoard.DHTML) then return end
 
     local json = util.TableToJSON(entries)
-    json = string.gsub(json, "'", "\\'")
-    BountyBoard.DHTML:QueueJavascript("setLeaderboard('" .. json .. "', '" .. category .. "', " .. myRank .. ", " .. myValue .. ")")
+    BountyBoard.DHTML:QueueJavascript("setLeaderboard('" .. SafeJSString(json) .. "', '" .. SafeJSString(category) .. "', " .. tonumber(myRank) .. ", " .. tonumber(myValue) .. ")")
 end)
 
 net.Receive("BountyBoard_BountyUpdate", function()

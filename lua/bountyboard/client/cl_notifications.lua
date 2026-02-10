@@ -56,9 +56,18 @@ net.Receive("BountyBoard_Notify", function()
     local msg = net.ReadString()
     local notifType = net.ReadString()
 
+    -- Validate notifType against whitelist
+    local validTypes = { info = true, error = true, success = true, warning = true }
+    if not validTypes[notifType] then notifType = "info" end
+
     if IsValid(BountyBoard.DHTML) then
-        local safe = string.gsub(msg, "'", "\\'")
-        BountyBoard.DHTML:QueueJavascript("showNotification('" .. safe .. "', '" .. notifType .. "')")
+        local safeMsg = string.gsub(msg, "\\", "\\\\")
+        safeMsg = string.gsub(safeMsg, "'", "\\'")
+        safeMsg = string.gsub(safeMsg, '"', '\\"')
+        safeMsg = string.gsub(safeMsg, "\n", "\\n")
+        safeMsg = string.gsub(safeMsg, "\r", "\\r")
+        safeMsg = string.gsub(safeMsg, "</", "<\\/")
+        BountyBoard.DHTML:QueueJavascript("showNotification('" .. safeMsg .. "', '" .. notifType .. "')")
     else
         BountyBoard.AddNotification(msg, notifType)
     end

@@ -13,6 +13,35 @@ util.AddNetworkString("BountyBoard_RequestLeaderboard")
 util.AddNetworkString("BountyBoard_SendLeaderboard")
 
 -------------------------------------------------
+-- Rate limiting for data requests (anti-spam)
+-------------------------------------------------
+
+local RequestCooldowns = {}
+local REQUEST_COOLDOWN = 1 -- seconds between requests per player
+
+local function CheckRequestRate(ply, requestType)
+    if not IsValid(ply) then return false end
+    local key = ply:SteamID() .. "_" .. requestType
+    local now = SysTime()
+    if RequestCooldowns[key] and (now - RequestCooldowns[key]) < REQUEST_COOLDOWN then
+        return false
+    end
+    RequestCooldowns[key] = now
+    return true
+end
+
+-- Cleanup rate limit entries when players disconnect
+hook.Add("PlayerDisconnected", "BountyBoard_CleanupRateLimits", function(ply)
+    if not IsValid(ply) then return end
+    local sid = ply:SteamID()
+    for key in pairs(RequestCooldowns) do
+        if string.StartWith(key, sid) then
+            RequestCooldowns[key] = nil
+        end
+    end
+end)
+
+-------------------------------------------------
 -- Sender helpers
 -------------------------------------------------
 
@@ -89,6 +118,7 @@ end
 -------------------------------------------------
 
 net.Receive("BountyBoard_RequestBounties", function(len, ply)
+    if not CheckRequestRate(ply, "bounties") then return end
     BountyBoard.SendBounties(ply)
 end)
 
@@ -147,10 +177,12 @@ function BountyBoard.SendLeaderboard(ply, category)
 end
 
 net.Receive("BountyBoard_RequestStats", function(len, ply)
+    if not CheckRequestRate(ply, "stats") then return end
     BountyBoard.SendPlayerStats(ply)
 end)
 
 net.Receive("BountyBoard_RequestLeaderboard", function(len, ply)
+    if not CheckRequestRate(ply, "leaderboard") then return end
     local category = net.ReadString()
     -- Validate category
     local valid = { bountiesCompleted = true, totalEarned = true, totalSpent = true }
