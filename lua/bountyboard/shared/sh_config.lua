@@ -239,8 +239,7 @@ BountyBoard.Config.UI = {
     -- Tabs
     TabActive       = "Active Bounties",
     TabPlace        = "Place Bounty",
-    TabLeaderboard  = "Leaderboard",
-    TabMy           = "My Bounties",
+    TabStats        = "Stats",
 
     -- Active Bounties page
     ActiveTitle     = "Active Bounties",
@@ -271,20 +270,15 @@ BountyBoard.Config.UI = {
     LbYourPosition  = "Your position",
     LbNoData        = "No data yet...",
 
-    -- My Bounties page
-    MyTitle         = "My Bounties",
+    -- Stats page
+    StatsTitle      = "My Stats",
     StatPlaced      = "Placed",
     StatCompleted   = "Completed",
     StatSurvived    = "Survived",
     StatEarned      = "Total Earned",
     StatSpent       = "Total Spent",
     StatBestStreak  = "Best Streak",
-    StatTracking    = "Tracking",
     SectionRank     = "HUNTER RANK",
-    SectionPlaced   = "BOUNTIES PLACED",
-    SectionTracking = "TRACKING",
-    NoPlaced        = "No bounties placed.",
-    NoTracking      = "No active hunts.",
 
     -- Modal (bounty detail)
     Wanted          = "WANTED",

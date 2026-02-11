@@ -90,11 +90,8 @@ tailwind.config = {
             <button class="rounded-full bg-bb-card text-bb-text2 border border-bb-border px-4 py-1.5 text-sm font-medium flex items-center gap-2 transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2" onclick="switchTab('place')" id="tab-place">
                 <i class="fa-solid fa-circle-plus text-xs"></i> {{TabPlace}}
             </button>
-            <button class="rounded-full bg-bb-card text-bb-text2 border border-bb-border px-4 py-1.5 text-sm font-medium flex items-center gap-2 transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2" onclick="switchTab('leaderboard')" id="tab-leaderboard">
-                <i class="fa-solid fa-trophy text-xs"></i> {{TabLeaderboard}}
-            </button>
-            <button class="rounded-full bg-bb-card text-bb-text2 border border-bb-border px-4 py-1.5 text-sm font-medium flex items-center gap-2 transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2" onclick="switchTab('my')" id="tab-my">
-                <i class="fa-solid fa-user text-xs"></i> {{TabMy}}
+            <button class="rounded-full bg-bb-card text-bb-text2 border border-bb-border px-4 py-1.5 text-sm font-medium flex items-center gap-2 transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2" onclick="switchTab('stats')" id="tab-stats">
+                <i class="fa-solid fa-trophy text-xs"></i> {{TabStats}}
             </button>
         </div>
         <button onclick="bb.closeMenu()" class="w-9 h-9 rounded-lg flex items-center justify-center bg-black text-white hover:bg-white hover:text-black transition shrink-0">
@@ -175,112 +172,99 @@ tailwind.config = {
             </div>
         </div>
 
-        <!-- Leaderboard -->
-        <div id="page-leaderboard" class="h-full overflow-y-auto px-8 py-6 hidden">
-            <div class="flex items-center justify-between mb-5">
-                <h2 class="text-lg font-bold text-bb-title flex items-center gap-2">
-                    <i class="fa-solid fa-trophy text-bb-amber text-sm"></i> {{LeaderboardTitle}}
-                </h2>
-                <button onclick="refreshLeaderboard()" id="btn-refresh-lb" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-gray-900 border border-white/80 hover:bg-gray-100 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Refresh
-                </button>
-            </div>
-
-            <!-- Category pills -->
-            <div class="flex gap-2 mb-6">
-                <button onclick="switchLeaderboardCategory('bountiesCompleted')" id="lb-pill-bountiesCompleted" class="px-4 py-1.5 rounded-full text-sm font-semibold bg-bb-amber text-bb-bg border border-bb-amber transition-all duration-150">
-                    <i class="fa-solid fa-crosshairs text-xs mr-1"></i> {{LbTopHunters}}
-                </button>
-                <button onclick="switchLeaderboardCategory('totalEarned')" id="lb-pill-totalEarned" class="px-4 py-1.5 rounded-full text-sm font-medium bg-bb-card text-bb-text2 border border-bb-border transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2">
-                    <i class="fa-solid fa-coins text-xs mr-1"></i> {{LbTopEarners}}
-                </button>
-                <button onclick="switchLeaderboardCategory('totalSpent')" id="lb-pill-totalSpent" class="px-4 py-1.5 rounded-full text-sm font-medium bg-bb-card text-bb-text2 border border-bb-border transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2">
-                    <i class="fa-solid fa-hand-holding-dollar text-xs mr-1"></i> {{LbTopSpenders}}
-                </button>
-            </div>
-
-            <!-- Leaderboard table -->
-            <div id="lb-table" class="space-y-2"></div>
-            <div id="lb-no-data" class="hidden text-center text-bb-text2 py-16">
-                <i class="fa-solid fa-chart-simple text-4xl mb-4 block"></i>
-                <p class="text-sm">{{LbNoData}}</p>
-            </div>
-
-            <!-- Player position (if not in top 10) -->
-            <div id="lb-my-position" class="hidden mt-4 border-t border-bb-border pt-4"></div>
-        </div>
-
-        <!-- My Bounties -->
-        <div id="page-my" class="h-full overflow-y-auto px-8 py-6 hidden">
-            <div class="flex items-center justify-between mb-5">
-                <h2 class="text-lg font-bold text-bb-title flex items-center gap-2">
-                    <i class="fa-solid fa-user text-bb-amber text-sm"></i> {{MyTitle}}
-                </h2>
-                <button onclick="refreshMyStats()" id="btn-refresh-my" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-gray-900 border border-white/80 hover:bg-gray-100 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Refresh
-                </button>
-            </div>
-
-            <!-- Persistent Stats (3x2 grid) -->
-            <div class="grid grid-cols-3 gap-4 mb-6">
-                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
-                    <div id="stat-placed" class="text-2xl font-bold text-bb-text">0</div>
-                    <div class="text-xs text-bb-text2 mt-1">{{StatPlaced}}</div>
-                </div>
-                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
-                    <div id="stat-completed" class="text-2xl font-bold text-bb-text">0</div>
-                    <div class="text-xs text-bb-text2 mt-1">{{StatCompleted}}</div>
-                </div>
-                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
-                    <div id="stat-survived" class="text-2xl font-bold text-bb-text">0</div>
-                    <div class="text-xs text-bb-text2 mt-1">{{StatSurvived}}</div>
-                </div>
-                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
-                    <div id="stat-earned" class="text-2xl font-bold text-bb-amber">0</div>
-                    <div class="text-xs text-bb-text2 mt-1">{{StatEarned}}</div>
-                </div>
-                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
-                    <div id="stat-spent" class="text-2xl font-bold text-bb-amber">0</div>
-                    <div class="text-xs text-bb-text2 mt-1">{{StatSpent}}</div>
-                </div>
-                <div class="border border-bb-border border-l-4 border-l-bb-amber rounded-lg p-4 text-center bg-bb-card/50">
-                    <div id="stat-streak" class="text-2xl font-bold text-bb-text">0</div>
-                    <div class="text-xs text-bb-text2 mt-1">{{StatBestStreak}}</div>
-                </div>
-            </div>
-
-            <!-- Hunter Rank -->
-            <h3 class="text-xs font-bold text-bb-text2 tracking-wider mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-medal text-bb-amber"></i> {{SectionRank}}
-            </h3>
-            <div id="rank-section" class="border border-bb-border rounded-xl p-5 bg-bb-card/50 mb-6">
-                <div class="flex items-center gap-4 mb-3">
-                    <div id="rank-icon" class="w-12 h-12 rounded-full bg-bb-amber/20 flex items-center justify-center">
-                        <i class="fa-solid fa-seedling text-bb-amber text-xl"></i>
+        <!-- Stats -->
+        <div id="page-stats" class="h-full overflow-y-auto px-8 py-6 hidden">
+            <div class="flex gap-6">
+                <!-- Left: Personal stats + Rank -->
+                <div class="flex-1">
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-lg font-bold text-bb-title flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-bb-amber text-sm"></i> {{StatsTitle}}
+                        </h2>
+                        <button onclick="refreshStats()" id="btn-refresh-stats" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-gray-900 border border-white/80 hover:bg-gray-100 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Refresh
+                        </button>
                     </div>
-                    <div>
-                        <div id="rank-name" class="text-lg font-bold text-bb-amber">Rookie</div>
-                        <div id="rank-progress-text" class="text-xs text-bb-text2">0 / 5 kills to next rank</div>
+
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <div class="border border-bb-border rounded-xl p-4 bg-bb-card/50 text-center">
+                            <div class="text-xs font-bold text-bb-text2 mb-1">{{StatPlaced}}</div>
+                            <div id="stat-placed" class="text-lg font-black text-bb-text">0</div>
+                        </div>
+                        <div class="border border-bb-border rounded-xl p-4 bg-bb-card/50 text-center">
+                            <div class="text-xs font-bold text-bb-text2 mb-1">{{StatCompleted}}</div>
+                            <div id="stat-completed" class="text-lg font-black text-bb-text">0</div>
+                        </div>
+                        <div class="border border-bb-border rounded-xl p-4 bg-bb-card/50 text-center">
+                            <div class="text-xs font-bold text-bb-text2 mb-1">{{StatSurvived}}</div>
+                            <div id="stat-survived" class="text-lg font-black text-bb-text">0</div>
+                        </div>
+                        <div class="border border-bb-border rounded-xl p-4 bg-bb-card/50 text-center">
+                            <div class="text-xs font-bold text-bb-text2 mb-1">{{StatEarned}}</div>
+                            <div id="stat-earned" class="text-lg font-black text-bb-amber">0</div>
+                        </div>
+                        <div class="border border-bb-border rounded-xl p-4 bg-bb-card/50 text-center">
+                            <div class="text-xs font-bold text-bb-text2 mb-1">{{StatSpent}}</div>
+                            <div id="stat-spent" class="text-lg font-black text-bb-amber">0</div>
+                        </div>
+                        <div class="border border-bb-border rounded-xl p-4 bg-bb-card/50 text-center">
+                            <div class="text-xs font-bold text-bb-text2 mb-1">{{StatBestStreak}}</div>
+                            <div id="stat-streak" class="text-lg font-black text-bb-text">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Rank -->
+                    <div class="border border-bb-border rounded-xl p-5 bg-bb-card/50 mb-6">
+                        <div class="text-xs font-bold text-bb-text2 tracking-wider mb-3">{{SectionRank}}</div>
+                        <div class="flex items-center gap-4 mb-3">
+                            <div id="rank-icon" class="w-14 h-14 rounded-full bg-bb-amber/20 flex items-center justify-center">
+                                <i id="rank-icon-i" class="fa-solid fa-seedling text-bb-amber text-2xl"></i>
+                            </div>
+                            <div>
+                                <div id="rank-name" class="text-xl font-black text-bb-amber">Rookie</div>
+                                <div id="rank-threshold" class="text-xs text-bb-text2">0 kills</div>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="w-full h-3 rounded-full bg-bb-bg overflow-hidden border border-bb-border">
+                                <div id="rank-progress-bar" class="h-full rounded-full bg-gradient-to-r from-bb-amber to-bb-amberlight transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between mt-1">
+                                <span id="rank-current-label" class="text-[10px] text-bb-text2">Rookie</span>
+                                <span id="rank-next-label" class="text-[10px] text-bb-text2">Tracker (5)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="w-full bg-bb-bg rounded-full h-2.5 overflow-hidden">
-                    <div id="rank-progress-bar" class="h-full bg-bb-amber rounded-full transition-all duration-500" style="width: 0%"></div>
+
+                <!-- Right: Leaderboard -->
+                <div class="w-80 shrink-0">
+                    <h3 class="text-xs font-bold text-bb-text2 tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-bb-amber"></i> {{LeaderboardTitle}}
+                    </h3>
+
+                    <!-- Category pills -->
+                    <div class="flex gap-1 mb-4">
+                        <button onclick="switchLeaderboardCategory('bountiesCompleted')" id="lb-pill-bountiesCompleted" class="px-3 py-1.5 rounded-full text-xs font-bold bg-bb-amber text-bb-bg border border-bb-amber transition">{{LbTopHunters}}</button>
+                        <button onclick="switchLeaderboardCategory('totalEarned')" id="lb-pill-totalEarned" class="px-3 py-1.5 rounded-full text-xs font-bold bg-bb-card text-bb-text2 border border-bb-border transition hover:bg-bb-card2">{{LbTopEarners}}</button>
+                        <button onclick="switchLeaderboardCategory('totalSpent')" id="lb-pill-totalSpent" class="px-3 py-1.5 rounded-full text-xs font-bold bg-bb-card text-bb-text2 border border-bb-border transition hover:bg-bb-card2">{{LbTopSpenders}}</button>
+                    </div>
+
+                    <!-- Leaderboard table -->
+                    <div id="lb-table" class="space-y-1.5">
+                        <div class="text-center text-bb-text2 text-sm py-8">{{LbNoData}}</div>
+                    </div>
+
+                    <!-- Your position -->
+                    <div id="lb-my-position" class="hidden mt-4 border border-bb-amber/30 rounded-xl p-3 bg-bb-amber/5">
+                        <div class="text-[10px] font-bold text-bb-text2 tracking-wider mb-1">{{LbYourPosition}}</div>
+                        <div class="flex items-center justify-between">
+                            <span id="lb-my-rank" class="text-sm font-bold text-bb-amber">#-</span>
+                            <span id="lb-my-value" class="text-sm font-bold text-bb-text">0</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Placed -->
-            <h3 class="text-xs font-bold text-bb-text2 tracking-wider mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-circle-plus text-bb-amber"></i> {{SectionPlaced}}
-            </h3>
-            <div id="my-placed" class="space-y-2 mb-6"></div>
-            <div id="no-placed" class="hidden text-bb-text2 text-sm pl-2 mb-6">{{NoPlaced}}</div>
-
-            <!-- Tracking -->
-            <h3 class="text-xs font-bold text-bb-text2 tracking-wider mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-eye text-bb-amber"></i> {{SectionTracking}}
-            </h3>
-            <div id="my-tracking" class="space-y-2 mb-4"></div>
-            <div id="no-tracking" class="hidden text-bb-text2 text-sm pl-2">{{NoTracking}}</div>
         </div>
 
     </div>
@@ -361,7 +345,7 @@ const TAB_INACTIVE_CLS = ['bg-bb-card','text-bb-text2','border-bb-border','font-
 
 function switchTab(tab) {
     currentTab = tab;
-    ['active','place','leaderboard','my'].forEach(t => {
+    ['active','place','stats'].forEach(t => {
         document.getElementById('page-' + t).classList.toggle('hidden', t !== tab);
         let btn = document.getElementById('tab-' + t);
         if (t === tab) {
@@ -372,11 +356,8 @@ function switchTab(tab) {
             TAB_INACTIVE_CLS.forEach(c => btn.classList.add(c));
         }
     });
-    if (tab === 'leaderboard') {
-        bb.requestLeaderboard(currentLbCategory);
-    }
-    if (tab === 'my') {
-        bb.requestStats();
+    if (tab === 'stats') {
+        refreshStats();
     }
 }
 
@@ -422,53 +403,6 @@ function renderActive() {
             <div class="border-t border-bb-border mt-3 pt-2 text-[11px] text-bb-text2">${CFG_UI.placedBy} ${placerLabel}</div>
         </div>`;
     }).join('');
-}
-
-function renderMyBounties() {
-    let all = Object.values(bounties);
-    let placed = all.filter(b => b.placerSteamID === localSteamID && (b.status === 'active' || b.status === 'hunting'));
-    let tracking = all.filter(b => b.hunterSteamID === localSteamID && b.status === 'hunting');
-
-    // Placed list
-    let placedEl = document.getElementById('my-placed');
-    let noPlaced = document.getElementById('no-placed');
-    if (placed.length === 0) { placedEl.innerHTML = ''; noPlaced.classList.remove('hidden'); }
-    else {
-        noPlaced.classList.add('hidden');
-        placedEl.innerHTML = placed.map(b => myBountyRow(b, false)).join('');
-    }
-
-    // Tracking list
-    let trackEl = document.getElementById('my-tracking');
-    let noTrack = document.getElementById('no-tracking');
-    if (tracking.length === 0) { trackEl.innerHTML = ''; noTrack.classList.remove('hidden'); }
-    else {
-        noTrack.classList.add('hidden');
-        trackEl.innerHTML = tracking.map(b => myBountyRow(b, true)).join('');
-    }
-}
-
-function myBountyRow(b, isTracking) {
-    let sev = getSeverity(b.amount);
-    let icon = getIcon(b.targetName || '');
-    let color = getColor(b.targetName || '');
-    let borderColor = isTracking ? 'border-l-bb-amberlight' : 'border-l-bb-amber';
-    return `
-    <div class="flex items-center justify-between border border-bb-border ${borderColor} border-l-4 rounded-lg px-4 py-3 bg-bb-card cursor-pointer transition-all duration-150 hover:border-bb-amber hover:bg-bb-card2" onclick="openBounty('${escAttr(b.id)}')">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background:${color}20">
-                <i class="fa-solid ${icon} text-sm" style="color:${color}"></i>
-            </div>
-            <div>
-                <div class="font-bold text-sm text-bb-text">${escHtml(b.targetName || 'Unknown')}</div>
-                <div class="text-xs text-bb-text2">${escHtml(b.reason || '')}</div>
-            </div>
-        </div>
-        <div class="text-right">
-            <div class="text-bb-amber font-bold text-sm">${formatNumber(b.amount)}</div>
-            <div class="text-[10px] font-bold ${sev.cls}">${sev.label}</div>
-        </div>
-    </div>`;
 }
 
 // --- Modal ---
@@ -571,17 +505,11 @@ function getNextRank(kills) {
 }
 
 // --- Refresh ---
-function refreshMyStats() {
-    let icon = document.querySelector('#btn-refresh-my i');
+function refreshStats() {
+    let icon = document.querySelector('#btn-refresh-stats i');
     icon.classList.add('animate-spin');
     bb.requestStats();
     bb.refreshBounties();
-    setTimeout(() => { icon.classList.remove('animate-spin'); }, 1000);
-}
-
-function refreshLeaderboard() {
-    let icon = document.querySelector('#btn-refresh-lb i');
-    icon.classList.add('animate-spin');
     bb.requestLeaderboard(currentLbCategory);
     setTimeout(() => { icon.classList.remove('animate-spin'); }, 1000);
 }
@@ -592,73 +520,53 @@ function switchLeaderboardCategory(cat) {
     ['bountiesCompleted','totalEarned','totalSpent'].forEach(c => {
         let pill = document.getElementById('lb-pill-' + c);
         if (c === cat) {
-            pill.className = 'px-4 py-1.5 rounded-full text-sm font-semibold bg-bb-amber text-bb-bg border border-bb-amber transition-all duration-150';
+            pill.className = 'px-3 py-1.5 rounded-full text-xs font-bold bg-bb-amber text-bb-bg border border-bb-amber transition';
         } else {
-            pill.className = 'px-4 py-1.5 rounded-full text-sm font-medium bg-bb-card text-bb-text2 border border-bb-border transition-all duration-150 hover:bg-bb-card2 hover:text-bb-text hover:border-bb-border2';
+            pill.className = 'px-3 py-1.5 rounded-full text-xs font-bold bg-bb-card text-bb-text2 border border-bb-border transition hover:bg-bb-card2';
         }
     });
     bb.requestLeaderboard(cat);
 }
 
 function renderLeaderboard(entries, myRank, myValue) {
-    let table = document.getElementById('lb-table');
-    let noData = document.getElementById('lb-no-data');
+    let container = document.getElementById('lb-table');
     let myPos = document.getElementById('lb-my-position');
 
     if (!entries || entries.length === 0) {
-        table.innerHTML = '';
-        noData.classList.remove('hidden');
+        container.innerHTML = '<div class="text-center text-bb-text2 text-sm py-8">' + CFG_UI.lbNoData + '</div>';
         myPos.classList.add('hidden');
         return;
     }
-    noData.classList.add('hidden');
 
-    let isValueMoney = (currentLbCategory === 'totalEarned' || currentLbCategory === 'totalSpent');
+    let isCurrency = (currentLbCategory === 'totalEarned' || currentLbCategory === 'totalSpent');
+    let medals = ['', 'text-yellow-400', 'text-gray-400', 'text-amber-600'];
+    let medalIcons = ['', 'fa-crown', 'fa-medal', 'fa-medal'];
 
-    table.innerHTML = entries.map(e => {
-        let medalColor = '';
-        let medalIcon = '';
-        if (e.rank === 1) { medalColor = 'text-yellow-400'; medalIcon = 'fa-trophy'; }
-        else if (e.rank === 2) { medalColor = 'text-gray-300'; medalIcon = 'fa-medal'; }
-        else if (e.rank === 3) { medalColor = 'text-amber-600'; medalIcon = 'fa-medal'; }
+    container.innerHTML = entries.map((e, i) => {
+        let rank = i + 1;
+        let isMe = e.steamid === localSteamID;
+        let borderCls = isMe ? 'border-bb-amber bg-bb-amber/5' : 'border-bb-border bg-bb-card/50';
+        let valueStr = isCurrency ? CFG_CURRENCY_SYMBOL + formatNumber(e.value) : formatNumber(e.value);
+        let medalHtml = rank <= 3 ? '<i class="fa-solid ' + medalIcons[rank] + ' ' + medals[rank] + '"></i>' : '<span class="text-bb-text2 text-xs font-bold">#' + rank + '</span>';
 
-        let rank = getRank(e.bountiesCompleted || 0);
-        let isLocal = (e.steamid === localSteamID);
-        let borderCls = isLocal ? 'border-bb-amber' : 'border-bb-border';
-        let valDisplay = isValueMoney ? (CFG_CURRENCY_SYMBOL + formatNumber(e.value)) : formatNumber(e.value);
-
-        return `
-        <div class="flex items-center justify-between border ${borderCls} rounded-lg px-5 py-3 bg-bb-card/50 transition-all duration-150 hover:bg-bb-card2">
-            <div class="flex items-center gap-4">
-                <div class="w-8 text-center font-bold text-lg ${medalColor || 'text-bb-text2'}">
-                    ${medalIcon ? '<i class="fa-solid ' + medalIcon + '"></i>' : '#' + e.rank}
-                </div>
-                <div>
-                    <div class="font-bold text-bb-text ${isLocal ? 'text-bb-amber' : ''}">${escHtml(e.name || 'Unknown')}</div>
-                    <div class="text-[10px] text-bb-text2 flex items-center gap-1">
-                        <i class="fa-solid ${rank.icon} text-bb-amber"></i> ${rank.name}
-                    </div>
-                </div>
-            </div>
-            <div class="text-bb-amber font-bold text-lg">${valDisplay}</div>
-        </div>`;
+        return '<div class="flex items-center gap-3 border ' + borderCls + ' rounded-lg px-3 py-2.5 transition">' +
+            '<div class="w-6 text-center shrink-0">' + medalHtml + '</div>' +
+            '<div class="flex-1 min-w-0"><div class="text-sm font-bold text-bb-text truncate">' + escHtml(e.name || 'Unknown') + '</div></div>' +
+            '<div class="text-sm font-bold ' + (isMe ? 'text-bb-amber' : 'text-bb-text') + ' shrink-0">' + valueStr + '</div>' +
+        '</div>';
     }).join('');
 
-    // Player position if not in top
-    let inTop = entries.some(e => e.steamid === localSteamID);
-    if (!inTop && myRank > 0) {
-        let valDisplay = isValueMoney ? (CFG_CURRENCY_SYMBOL + formatNumber(myValue)) : formatNumber(myValue);
-        myPos.innerHTML = `
-        <div class="flex items-center justify-between border border-bb-amber rounded-lg px-5 py-3 bg-bb-card/50">
-            <div class="flex items-center gap-4">
-                <div class="w-8 text-center font-bold text-lg text-bb-text2">#${myRank}</div>
-                <div class="font-bold text-bb-amber">${CFG_UI.lbYourPosition}</div>
-            </div>
-            <div class="text-bb-amber font-bold text-lg">${valDisplay}</div>
-        </div>`;
+    // Show player position if not in top 10
+    if (myRank > 10 && myRank > 0) {
         myPos.classList.remove('hidden');
-    } else {
+        document.getElementById('lb-my-rank').textContent = '#' + myRank;
+        document.getElementById('lb-my-value').textContent = isCurrency ? CFG_CURRENCY_SYMBOL + formatNumber(myValue) : formatNumber(myValue);
+    } else if (myRank > 0) {
         myPos.classList.add('hidden');
+    } else {
+        myPos.classList.remove('hidden');
+        document.getElementById('lb-my-rank').textContent = 'Unranked';
+        document.getElementById('lb-my-value').textContent = '-';
     }
 }
 
@@ -677,16 +585,19 @@ function renderMyStats() {
     let rank = getRank(kills);
     let next = getNextRank(kills);
 
-    document.getElementById('rank-icon').innerHTML = '<i class="fa-solid ' + rank.icon + ' text-bb-amber text-xl"></i>';
+    document.getElementById('rank-icon-i').className = 'fa-solid ' + rank.icon + ' text-bb-amber text-2xl';
     document.getElementById('rank-name').textContent = rank.name;
+    document.getElementById('rank-threshold').textContent = kills + ' kills';
 
     if (next) {
         let progress = ((kills - rank.kills) / (next.kills - rank.kills)) * 100;
         document.getElementById('rank-progress-bar').style.width = Math.min(progress, 100) + '%';
-        document.getElementById('rank-progress-text').textContent = kills + ' / ' + next.kills + ' kills to next rank';
+        document.getElementById('rank-current-label').textContent = rank.name;
+        document.getElementById('rank-next-label').textContent = next.name + ' (' + next.kills + ')';
     } else {
         document.getElementById('rank-progress-bar').style.width = '100%';
-        document.getElementById('rank-progress-text').textContent = 'Max rank achieved!';
+        document.getElementById('rank-current-label').textContent = rank.name;
+        document.getElementById('rank-next-label').textContent = 'MAX RANK';
     }
 }
 
@@ -696,7 +607,6 @@ function setBounties(json) {
     bounties = {};
     arr.forEach(b => { bounties[b.id] = b; });
     renderActive();
-    renderMyBounties();
 }
 
 function updateBounty(json, action) {
@@ -704,7 +614,6 @@ function updateBounty(json, action) {
     if (action === 'add' || action === 'update') bounties[b.id] = b;
     else if (action === 'remove') delete bounties[b.id];
     renderActive();
-    renderMyBounties();
 }
 
 function setPlayers(json) {
