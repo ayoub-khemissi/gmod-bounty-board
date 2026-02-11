@@ -345,6 +345,7 @@ const TAB_INACTIVE_CLS = ['bg-bb-card','text-bb-text2','border-bb-border','font-
 
 function switchTab(tab) {
     currentTab = tab;
+    bb.saveParam('tab', tab);
     ['active','place','stats'].forEach(t => {
         document.getElementById('page-' + t).classList.toggle('hidden', t !== tab);
         let btn = document.getElementById('tab-' + t);
@@ -715,6 +716,12 @@ function showNotification(msg, type) {
     }, 4500);
 }
 
+// --- Restore params (called from Lua on open) ---
+function restoreParams(json) {
+    let p = JSON.parse(json);
+    if (p.tab) switchTab(p.tab);
+}
+
 // --- Util ---
 function escHtml(s) { let d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function escAttr(s) { return s.replace(/'/g, '&#39;').replace(/"/g, '&quot;'); }
@@ -849,6 +856,10 @@ function BountyBoard.OpenMenu()
         net.SendToServer()
     end)
 
+    dhtml:AddFunction("bb", "saveParam", function(key, value)
+        cookie.Set("bb_" .. tostring(key), tostring(value))
+    end)
+
     -- 3D Model Preview Panel
     local modelPanel = vgui.Create("DModelPanel", frame)
     modelPanel:SetVisible(false)
@@ -901,6 +912,12 @@ function BountyBoard.OpenMenu()
     dhtml:QueueJavascript("setLocalSteamID('" .. LocalPlayer():SteamID() .. "')")
     BountyBoard.RefreshDHTML()
     BountyBoard.InjectPlayers()
+
+    -- Restore saved tab
+    local savedTab = cookie.GetString("bb_tab", "")
+    if savedTab ~= "" then
+        dhtml:QueueJavascript("restoreParams('" .. SafeJSString(util.TableToJSON({tab = savedTab})) .. "')")
+    end
 end
 
 -------------------------------------------------
